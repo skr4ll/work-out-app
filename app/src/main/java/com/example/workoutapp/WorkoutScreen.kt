@@ -28,10 +28,16 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Workout Fortschritt: $progress", style = MaterialTheme.typography.titleMedium)
+        Text("Workout Counter: $progress", style = MaterialTheme.typography.titleMedium)
+        val currentExerciseNumber by viewModel.currentExerciseNumber.observeAsState(0)
+        val totalExercises = viewModel.exerciseCount
+
+        if (!workoutFinished && currentExerciseNumber > 0) {
+            Text("Übung $currentExerciseNumber von $totalExercises", style = MaterialTheme.typography.titleMedium)
+        }
 
         if (workoutFinished) {
-            Text("Workout abgeschlossen! 🎉", style = MaterialTheme.typography.headlineMedium)
+            Text("Workout abgeschlossen!", style = MaterialTheme.typography.headlineMedium)
         } else if (exercise != null) {
             Image(painter = painterResource(id = exercise!!.imageResId), contentDescription = null)
             Text(exercise!!.name, style = MaterialTheme.typography.headlineSmall)
@@ -42,11 +48,12 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = viewModel()) {
 
         Text("Verbleibende Zeit: $timeLeft s", style = MaterialTheme.typography.titleLarge)
 
-        Button(
-            onClick = { viewModel.startWorkout() },
-            enabled = !workoutFinished && timeLeft == 0
-        ) {
-            Text("Workout starten")
+        if (!workoutFinished && timeLeft == 0 && exercise == null && !isPause || workoutFinished) {
+            Button(
+                onClick = { viewModel.startWorkout() }
+            ) {
+                Text("Workout starten")
+            }
         }
     }
 }

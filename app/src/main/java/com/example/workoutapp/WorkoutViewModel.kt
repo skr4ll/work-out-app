@@ -28,19 +28,31 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     private val _progress = MutableLiveData(getSavedProgress())
     val progress: LiveData<Int> = _progress
 
+    private val _exerciseCount = exercises.size
+    val exerciseCount: Int get() = _exerciseCount
+
+    private val _currentExerciseNumber = MutableLiveData(0)
+    val currentExerciseNumber: LiveData<Int> = _currentExerciseNumber
+
+
+
     fun startWorkout() {
         exerciseIndex = 0
+        _currentExerciseNumber.value = 1
         _workoutFinished.value = false
         startExercise()
     }
 
     private fun startExercise() {
         _isPause.value = false
+        _currentExerciseNumber.value = exerciseIndex + 1
         val exercise = exercises[exerciseIndex]
         _currentExercise.value = exercise
         startTimer(exercise.durationSeconds) {
             SoundPlayer.play(context, R.raw.end)
-            startPause()
+            // Pause nur starten wenn Übung nicht die letzte ist
+            if (exerciseIndex < exercises.size -1 ){startPause()}
+            else {finishWorkout()}
         }
         SoundPlayer.play(context, R.raw.start)
     }
@@ -48,12 +60,14 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     private fun startPause() {
         _isPause.value = true
         _currentExercise.value = null
-        startTimer(10) {
+        startTimer(2) {
             SoundPlayer.play(context, R.raw.pause_end)
             exerciseIndex++
-            if (exerciseIndex < exercises.size) {
+            _currentExerciseNumber.value = exerciseIndex + 1
+            if (exerciseIndex <= exercises.size - 1) {
                 startExercise()
-            } else {
+            }
+            else {
                 finishWorkout()
             }
         }
@@ -77,6 +91,7 @@ class WorkoutViewModel(application: Application) : AndroidViewModel(application)
     private fun finishWorkout() {
         _workoutFinished.value = true
         saveProgress()
+        _currentExerciseNumber.value = 0
     }
 
     private fun saveProgress() {

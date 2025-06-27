@@ -1,5 +1,5 @@
 package com.example.workoutapp
-
+// Einzelne Übung
 data class Exercise(
     val id: Int,
     val name: String,
