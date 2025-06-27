@@ -1,7 +1,5 @@
 package com.example.workoutapp
 
-import com.example.workoutapp.R
-
 object ExerciseData {
     val exercises = listOf(
         Exercise(1, "Liegestütze", "Klassische Liegestütze", R.drawable.pushups, 30),
